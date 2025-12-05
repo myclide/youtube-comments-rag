@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Data (keep raw & index local unless you want them in the repo)
+data/*.csv
+data/*.parquet
+data/*.index
+data/*.faiss
+data/comments_raw.*
+data/comments.*
+
+# Logs / temp
+*.log
+*.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Secrets
+.env
+*.key
