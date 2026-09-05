@@ -1,0 +1,133 @@
+{
+  "queries": 60,
+  "bootstrap_iterations": 10000,
+  "randomization_iterations": 100000,
+  "confidence_level": 0.95,
+  "random_seed": 20260904,
+  "comparisons": [
+    {
+      "comparison": "qwen3_bge_vs_minilm",
+      "metrics": {
+        "ndcg_at_10": {
+          "baseline_mean": 0.6365463527104616,
+          "system_mean": 0.734650798657898,
+          "absolute_difference": 0.09810444594743639,
+          "relative_improvement": 0.15411987757011,
+          "difference_95ci": [
+            0.054446570960280424,
+            0.1437052224230157
+          ],
+          "relative_95ci": [
+            0.08059969389009682,
+            0.2427840250063913
+          ],
+          "bootstrap_probability_positive": 1.0,
+          "randomization_p_value": 4.999950000499995e-05,
+          "wins": 39,
+          "ties": 8,
+          "losses": 13
+        },
+        "mrr_at_10": {
+          "baseline_mean": 0.8994444444444445,
+          "system_mean": 0.9461111111111112,
+          "absolute_difference": 0.046666666666666745,
+          "relative_improvement": 0.051883878937615896,
+          "difference_95ci": [
+            -0.001388888888888995,
+            0.09917361111111107
+          ],
+          "relative_95ci": [
+            -0.0015031513526108523,
+            0.1164122137404579
+          ],
+          "bootstrap_probability_positive": 0.9694,
+          "randomization_p_value": 0.08648913510864892,
+          "wins": 7,
+          "ties": 52,
+          "losses": 1
+        },
+        "precision_at_10": {
+          "baseline_mean": 0.6366666666666666,
+          "system_mean": 0.6966666666666669,
+          "absolute_difference": 0.060000000000000275,
+          "relative_improvement": 0.09424083769633552,
+          "difference_95ci": [
+            0.016666666666666607,
+            0.10499999999999998
+          ],
+          "relative_95ci": [
+            0.024629028939373538,
+            0.1763005780346821
+          ],
+          "bootstrap_probability_positive": 0.9958,
+          "randomization_p_value": 0.013609863901360986,
+          "wins": 24,
+          "ties": 21,
+          "losses": 15
+        }
+      }
+    },
+    {
+      "comparison": "triple_bge_vs_qwen3_bge",
+      "metrics": {
+        "ndcg_at_10": {
+          "baseline_mean": 0.734650798657898,
+          "system_mean": 0.73830522612939,
+          "absolute_difference": 0.0036544274714920277,
+          "relative_improvement": 0.00497437350938452,
+          "difference_95ci": [
+            -0.019839126743331353,
+            0.030898416201859107
+          ],
+          "relative_95ci": [
+            -0.02653083856949808,
+            0.043512264918556864
+          ],
+          "bootstrap_probability_positive": 0.599,
+          "randomization_p_value": 0.7908320916790832,
+          "wins": 13,
+          "ties": 27,
+          "losses": 20
+        },
+        "mrr_at_10": {
+          "baseline_mean": 0.9461111111111112,
+          "system_mean": 0.9472222222222223,
+          "absolute_difference": 0.0011111111111110628,
+          "relative_improvement": 0.0011743981209629553,
+          "difference_95ci": [
+            -0.03749999999999998,
+            0.04556944444444425
+          ],
+          "relative_95ci": [
+            -0.03880844337390851,
+            0.05048367593712217
+          ],
+          "bootstrap_probability_positive": 0.5007,
+          "randomization_p_value": 1.0,
+          "wins": 2,
+          "ties": 53,
+          "losses": 5
+        },
+        "precision_at_10": {
+          "baseline_mean": 0.6966666666666669,
+          "system_mean": 0.6933333333333332,
+          "absolute_difference": -0.0033333333333336324,
+          "relative_improvement": -0.004784688995215738,
+          "difference_95ci": [
+            -0.020041666666666527,
+            0.01333333333333342
+          ],
+          "relative_95ci": [
+            -0.029411764705882377,
+            0.020356378018030422
+          ],
+          "bootstrap_probability_positive": 0.339,
+          "randomization_p_value": 0.7840421595784042,
+          "wins": 11,
+          "ties": 38,
+          "losses": 11
+        }
+      }
+    }
+  ]
+}

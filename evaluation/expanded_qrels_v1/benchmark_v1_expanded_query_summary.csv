@@ -1,0 +1,61 @@
+﻿query_id,video_id,query_type,query,judged_docs,relevance_0,relevance_1,relevance_2,relevant_ge_1
+q001,dxPhJ0wfp0g,semantic_recommendation,What laptops or computer setups do viewers recommend for programming?,66,24,24,18,42
+q002,dxPhJ0wfp0g,attribute,What hardware specifications do viewers consider important for programming or machine learning?,65,33,19,13,32
+q003,dxPhJ0wfp0g,entity_lexical,What do viewers say about MacBooks for programming?,75,49,10,16,26
+q004,xC-c7E5PK0Y,semantic_recommendation,"How do viewers distinguish data science, data engineering, and machine learning engineering roles?",68,49,12,7,19
+q005,xC-c7E5PK0Y,attribute,What do viewers say about how data science job titles and responsibilities vary by company size?,61,49,8,4,12
+q006,xC-c7E5PK0Y,entity_lexical,What questions do viewers ask about machine learning engineers?,72,64,4,4,8
+q007,wJdNrCeUdhc,semantic_recommendation,What do viewers say about why people struggle to name or read books?,70,34,6,30,36
+q008,wJdNrCeUdhc,attribute,What attitudes do viewers express about reading and literacy?,77,12,7,58,65
+q009,wJdNrCeUdhc,entity_lexical,Which specific books or book titles do viewers mention or recommend?,80,47,0,33,33
+q010,_uQrJ0TkZlc,semantic_recommendation,What do viewers say about learning Python as beginners?,67,10,38,19,57
+q011,_uQrJ0TkZlc,attribute,How do viewers suggest practicing Python after following the course?,61,56,5,0,5
+q012,_uQrJ0TkZlc,entity_lexical,What do viewers ask about coding Python on a phone?,70,65,0,5,5
+q013,5YU4lLxi0go,semantic_recommendation,What do viewers say about the man's bond with the big cats?,73,41,9,23,32
+q014,5YU4lLxi0go,attribute,"What safety concerns or risks do viewers mention about interacting with lions, jaguars, or other big cats?",69,41,6,22,28
+q015,5YU4lLxi0go,entity_lexical,What do viewers say specifically about jaguars compared with other big cats?,67,62,2,3,5
+q016,3IIBVnn4eTM,semantic_recommendation,What do viewers say about the song's jazz or retro musical style?,58,42,2,14,16
+q017,3IIBVnn4eTM,attribute,What do viewers say about MAMAMOO's vocal and performance skills as rookies?,62,49,5,8,13
+q018,3IIBVnn4eTM,entity_lexical,What do viewers say about Wheein's part around 3:03?,66,63,1,2,3
+q019,A870mS0bN-E,semantic_recommendation,What nostalgic memories do viewers share about watching this Spider-Man video as children?,72,49,9,14,23
+q020,A870mS0bN-E,attribute,Which scenes or moments in the video do viewers react to or reference?,61,37,6,18,24
+q021,A870mS0bN-E,entity_lexical,What do viewers say about Spider-Man's appearance or equipment in the video?,73,62,0,11,11
+q022,lviVCr1dK1o,semantic_recommendation,What reading strategies do viewers say help improve English?,68,34,13,21,34
+q023,lviVCr1dK1o,attribute,What do viewers say about using dictionaries and learning vocabulary from context?,74,41,10,23,33
+q024,lviVCr1dK1o,entity_lexical,What do viewers say about reading fiction versus nonfiction for improving English?,63,58,2,3,5
+q025,a-VCL7U_JEA,semantic_recommendation,What do viewers say about the monkeys warning the deer about the tiger?,54,22,5,27,32
+q026,a-VCL7U_JEA,attribute,What do viewers say about the deer's reaction to danger and whether running can make things worse?,60,47,1,12,13
+q027,a-VCL7U_JEA,entity_lexical,"What do viewers say about langur monkeys, chital deer, or tigers in the video?",61,9,5,47,52
+q028,OuPMVdski3E,semantic_recommendation,What do viewers say about the instructor's way of teaching machine learning?,64,21,11,32,43
+q029,OuPMVdski3E,attribute,What parts of the machine learning course do viewers think need more depth or a Part 2?,60,36,10,14,24
+q030,OuPMVdski3E,entity_lexical,What do viewers ask about the difference between this machine learning course and the Python tutorial?,67,63,1,3,4
+q031,cRJPvUlPVLc,semantic_recommendation,What do viewers say about the girl gamer's gameplay versus her attitude?,58,45,5,8,13
+q032,cRJPvUlPVLc,attribute,What weapon choices or gameplay decisions do viewers criticize or discuss?,67,57,3,7,10
+q033,cRJPvUlPVLc,entity_lexical,What do viewers say about Loneranger?,60,45,2,13,15
+q034,eq1-rQ9wYI8,semantic_recommendation,Which upcoming phones are viewers most interested in?,69,41,10,18,28
+q035,eq1-rQ9wYI8,attribute,"What hardware concerns do viewers mention about Samsung M31s, especially its processor, chipset, or camera?",54,42,0,12,12
+q036,eq1-rQ9wYI8,entity_lexical,What do viewers say or ask about OnePlus Nord?,65,56,2,7,9
+q037,tJ4hzj-iX38,semantic_recommendation,What do viewers say about whether the giant snake shown is real or fake?,46,34,0,12,12
+q038,tJ4hzj-iX38,attribute,"What do viewers say about the size, weight, or danger of anacondas?",57,33,2,22,24
+q039,tJ4hzj-iX38,entity_lexical,What do viewers say about reticulated pythons compared with anacondas?,57,56,0,1,1
+q040,Dt89dX0c7Cw,semantic_recommendation,What salaries do viewers say data scientists or machine learning developers can earn?,68,33,32,3,35
+q041,Dt89dX0c7Cw,attribute,"What factors do viewers think affect data science salary, such as skills, experience, location, or background?",64,26,31,7,38
+q042,Dt89dX0c7Cw,entity_lexical,What do viewers say about data science salaries in India versus the United States?,61,52,8,1,9
+q043,vg-96Got_PA,semantic_recommendation,Which affordable laptops do viewers recommend for students?,62,14,35,13,48
+q044,vg-96Got_PA,attribute,"What do viewers say about student laptop budgets, pricing, and upgradeability?",76,23,7,46,53
+q045,vg-96Got_PA,entity_lexical,"What do viewers say about Lenovo Flex 5, Acer Swift 3, Dell Inspiron 14, or Lenovo IdeaPad 5?",58,46,0,12,12
+q046,5g0Zn4AzPmw,semantic_recommendation,What do viewers say about the song and the singers' voices?,79,9,3,67,70
+q047,5g0Zn4AzPmw,attribute,"What do viewers say about the song's lyrics, music, and overall performance?",62,8,1,53,54
+q048,5g0Zn4AzPmw,entity_lexical,What do viewers say about Rajeev Negi or Birbal Musafir?,54,15,4,35,39
+q049,EcHXbIp1AEw,semantic_recommendation,Which books do viewers recommend or praise in the comments?,53,29,6,18,24
+q050,EcHXbIp1AEw,attribute,What do viewers say about listening to audiobooks while doing other tasks?,51,49,0,2,2
+q051,EcHXbIp1AEw,entity_lexical,What do viewers say about The Girl Who Drank the Moon?,51,43,3,5,8
+q052,4semdEFL4Gk,semantic_recommendation,What do viewers say about Yung Calc's skill and stream quality?,52,23,11,18,29
+q053,4semdEFL4Gk,attribute,What do viewers say about using the charged shotgun effectively?,55,47,5,3,8
+q054,4semdEFL4Gk,entity_lexical,What do viewers say about Jerian's bet or the 20-kill challenge?,55,52,0,3,3
+q055,atTF_LtPUes,semantic_recommendation,What do viewers say about Red Road's appearance and presence?,56,17,2,37,39
+q056,atTF_LtPUes,attribute,What do viewers say about the lion's roar and how far it can be heard?,51,34,1,16,17
+q057,atTF_LtPUes,entity_lexical,"What do viewers say about Red Road's health, injuries, or cubs?",59,53,1,5,6
+q058,KhuDutYEbVA,semantic_recommendation,Which upcoming smartphones are viewers waiting for?,53,23,17,13,30
+q059,KhuDutYEbVA,attribute,What release-date or price questions do viewers ask about upcoming phones?,54,34,4,16,20
+q060,KhuDutYEbVA,entity_lexical,"What do viewers say about Redmi 10X 5G, K30 Pro, or Mi A4?",47,31,9,7,16

@@ -1,0 +1,170 @@
+你正在为一个 YouTube Comments RAG retrieval benchmark
+进行 relevance judging。
+
+请读取当前工作区中的未标注 candidate pool CSV。
+
+每一行包含：
+
+- label_id
+- query_id
+- video_id
+- query_type
+- query
+- document_id
+- representative_comment_id
+- comment_text
+
+请独立判断每一条 query-comment pair 的 retrieval relevance。
+
+==================================================
+LABELS
+==================================================
+
+2 = Highly relevant
+
+comment 明确、直接地帮助回答 query。
+
+必须包含至少一种实质 answer value，例如：
+
+- 明确建议或反建议
+- 明确观点
+- 第一手使用经验
+- 具体比较
+- 具体规格
+- 优缺点
+- 实际判断
+
+不要因为可以“推理出”某个观点就给 2。
+关键观点必须在 comment 中明确表达或非常直接地表达。
+
+
+1 = Relevant
+
+comment 与 query 明确相关，但没有提供足够的直接答案。
+
+典型情况：
+
+- 提出一个直接相关的问题，但没有回答
+- 比较相关产品或规格，但没有结论
+- 提到与 query 直接相关的使用场景，但信息有限
+
+
+0 = Not relevant
+
+comment 对回答 query 没有实际帮助。
+
+包括：
+
+- 只有关键词重合
+- 泛泛评价视频
+- 跑题
+- spam
+- 只提到相关实体，但没有讨论 query 所问的具体方面
+- 需要 judge 自己补出关键推论才能认为它回答了 query
+
+==================================================
+STRICT DECISION RULES
+==================================================
+
+1. 不要过度推断。
+
+如果 comment 没有明确或强烈表达一个结论，
+不要替评论者补出这个结论。
+
+2. 一个相关问题通常是 1，而不是 2。
+
+3. query 如果询问一个具体 aspect，
+comment 只讨论 broader topic，
+不能因此判为 2。
+
+4. 如果在 0 和 2 之间犹豫，
+只有当 comment 明确回答了 query 的具体 aspect 时才能给 2；
+否则优先考虑 0 或 1。
+
+5. factual correctness 与 retrieval relevance 分开判断。
+
+评论观点即使技术上可能错误，
+只要明确回答 query，仍然可以 highly relevant。
+
+==================================================
+QUERY TYPE RULES
+==================================================
+
+semantic_recommendation
+
+2:
+明确推荐或反推荐 laptop、OS、PC、cloud VM、
+具体 setup，或者给出明确的实际使用经验和判断。
+
+1:
+询问什么 setup 适合 programming，
+或讨论相关选择但没有结论。
+
+0:
+只是出现 laptop / computer，
+或者只评价视频。
+
+
+attribute
+
+2:
+明确讨论 CPU、GPU、RAM、SSD、
+processor generation、virtualization 等具体规格
+与 programming / machine learning 的关系，
+并给出建议、经验或判断。
+
+1:
+询问某规格是否足够，
+或比较两个规格但没有给出结论。
+
+0:
+只讨论“电脑”“技能”“操作系统”等 broader topic，
+而没有真正回答硬件规格问题。
+
+
+entity_lexical
+
+2:
+明确讨论 MacBook 用于 programming/development 的
+适用性、优缺点、兼容性、实际经验或比较。
+
+1:
+询问 MacBook 是否适合开发，
+或明确将 MacBook 与 programming 联系起来，
+但没有提供结论。
+
+0:
+只是提到 MacBook，
+但没有讨论 programming/development。
+
+==================================================
+OUTPUT
+==================================================
+
+新增：
+
+gpt_relevance
+gpt_reason
+gpt_uncertain
+
+其中：
+
+gpt_relevance 只能是：
+0
+1
+2
+
+gpt_uncertain 只能是：
+TRUE
+FALSE
+
+如果 0/1 或 1/2 的边界确实模糊，
+才使用 TRUE。
+
+不要修改任何原始字段。
+
+不要查看任何 BM25 rank、dense rank、retrieval score
+或 candidate source。
+
+完成全部记录后输出一个新的 CSV，
+不要覆盖输入文件。

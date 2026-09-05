@@ -1,0 +1,6 @@
+query_id,validator_status,final_status,reason
+q008,REVIEW,ACCEPTED,"Relevant reading and literacy attitudes are well represented; low BM25/Dense overlap reflects retrieval diversity rather than weak support."
+q009,REVIEW,ACCEPTED,"Many comments contain explicit book titles and recommendation lists; support is strong despite low retriever overlap."
+q014,REVIEW,ACCEPTED,"Comments explicitly discuss danger, unpredictability, attack risk, and safety around big cats."
+q040,REVIEW,ACCEPTED,"Salary-related comments are abundant; low overlap is caused by lexical retrieval noise rather than weak query support."
+q044,REVIEW,ACCEPTED,"Comments extensively discuss student budgets, laptop pricing, price ceilings, and upgrade costs."

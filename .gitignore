@@ -1,39 +1,212 @@
+# ============================================================
 # Python
+# ============================================================
+
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
 *.pyd
+*.so
 
-# Virtual environment
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ============================================================
+# Virtual environments
+# ============================================================
+
 .venv/
-env/
 venv/
+env/
+ENV/
 
-# Data (keep raw & index local unless you want them in the repo)
-data/*.csv
-data/*.parquet
-data/*.index
-data/*.faiss
-data/comments_raw.*
-data/comments.*
+# ============================================================
+# IDE / editor
+# ============================================================
 
-# Logs / temp
-*.log
-*.tmp
-
-# OS / editor
-.DS_Store
-Thumbs.db
 .vscode/
 .idea/
 
-# Secrets
+*.swp
+*.swo
+
+# ============================================================
+# Operating system files
+# ============================================================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ============================================================
+# Environment variables / secrets
+# ============================================================
+
 .env
+.env.*
+!.env.example
+
 *.key
-.venv/
-data/
-youtube-comments-rag/
-__pycache__/
-*.pyc
-*.parquet
+*.pem
+
+# ============================================================
+# Hugging Face / model caches
+# ============================================================
+
+.cache/
+huggingface/
+hf_cache/
+
+# ============================================================
+# Raw / reconstructed datasets
+# ============================================================
+
+data/Final Result.csv
+data/structured_comments/
+data/structured_comments_test.jsonl
+data/test_comments_*.jsonl
+
+# ============================================================
+# Generated corpus files
+# ============================================================
+
+data/corpus_v1/*.parquet
+
+# Keep small metadata such as:
+# data/corpus_v1/corpus_v1_summary.json
+
+# ============================================================
+# Modern Qwen3 serving index
+# ============================================================
+
+data/modern_index_v1/
+
+# ============================================================
+# Vector indexes / embedding artifacts
+# ============================================================
+
 *.index
+*.faiss
+*.npy
+*.npz
+
+# ============================================================
+# Temporary Work labeling batches
+# ============================================================
+
+evaluation/candidate_pool_v1/work_batches/
+evaluation/candidate_pool_v1/work_batches_v2/
+
+# ============================================================
+# Initial candidate-pool / labeling intermediates
+# ============================================================
+
+evaluation/candidate_pool_v1/candidate_pool_benchmark_v1.csv
+evaluation/candidate_pool_v1/candidate_pool_benchmark_v1_unlabeled.csv
+
+evaluation/candidate_pool_v1/candidate_pool_pilot.csv
+evaluation/candidate_pool_v1/candidate_pool_pilot_labeling.csv
+evaluation/candidate_pool_v1/candidate_pool_pilot_final_calibration.csv
+
+evaluation/candidate_pool_v1/benchmark_v1_adjudication_blind.csv
+evaluation/candidate_pool_v1/benchmark_v1_adjudication_blind_labeled.csv
+
+evaluation/candidate_pool_v1/benchmark_v1_judgments_gpt_v2.csv
+evaluation/candidate_pool_v1/benchmark_v1_judgments_post_adjudication.csv
+evaluation/candidate_pool_v1/benchmark_v1_uncertain_gpt_v2.csv
+evaluation/candidate_pool_v1/benchmark_v1_final_uncertain_review.csv
+
+# ============================================================
+# Large row-level judgment files
+# ============================================================
+
+evaluation/candidate_pool_v1/benchmark_v1_judgments_final.csv
+evaluation/expanded_qrels_v1/benchmark_v1_judgments_expanded_qwen3.csv
+
+# Keep final compact qrels files:
+# evaluation/candidate_pool_v1/benchmark_v1_qrels.csv
+# evaluation/expanded_qrels_v1/benchmark_v1_qrels_expanded_qwen3.csv
+
+# ============================================================
+# Evaluation workflow intermediates
+# ============================================================
+
+evaluation/benchmark_query_validation_details.txt
+evaluation/remaining_benchmark_inspection.txt
+
+evaluation/candidate_pool_v1/benchmark_v1_adjudication_manifest.csv
+evaluation/candidate_pool_v1/benchmark_v1_adjudication_transitions.csv
+evaluation/candidate_pool_v1/benchmark_v1_post_adjudication_query_summary.csv
+evaluation/candidate_pool_v1/benchmark_v1_query_audit.csv
+evaluation/candidate_pool_v1/benchmark_v1_label_merge_report.json
+
+evaluation/candidate_pool_v1/benchmark_v1_judgment_summary.csv
+evaluation/candidate_pool_v1/candidate_pool_benchmark_v1_summary.csv
+evaluation/candidate_pool_v1/candidate_pool_pilot_final_calibration_report.txt
+
+# ============================================================
+# Qwen3 pool labeling artifacts
+# ============================================================
+
+evaluation/qwen3_dense_v1/qwen3_dense_novel_candidates_unlabeled.csv
+evaluation/qwen3_dense_v1/qwen3_dense_novel_candidates_labeled.csv
+evaluation/qwen3_dense_v1/qwen3_dense_top25.csv
+
+# Keep compact summary:
+# evaluation/qwen3_dense_v1/qwen3_dense_pool_summary.csv
+
+# ============================================================
+# Per-query / Top-10 detailed experiment outputs
+# ============================================================
+
+evaluation/baseline_results_v1/baseline_metrics_per_query.csv
+evaluation/baseline_results_v1/baseline_top10_judgments.csv
+
+evaluation/expanded_results_v1/expanded_metrics_per_query.csv
+evaluation/expanded_results_v1/expanded_top10_audit.csv
+
+evaluation/reranker_results_v1/reranker_metrics_per_query.csv
+evaluation/reranker_results_v1/reranker_top10_results.csv
+evaluation/reranker_results_v1/reranker_vs_minilm.csv
+
+evaluation/reranker_candidate_ablation_v1/reranker_candidate_ablation_per_query.csv
+evaluation/reranker_candidate_ablation_v1/reranker_candidate_ablation_top10.csv
+
+evaluation/rrf_results_v1/rrf_metrics_per_query.csv
+evaluation/rrf_results_v1/rrf_top10_results.csv
+
+evaluation/statistical_significance_v1/bootstrap_distributions.csv
+evaluation/statistical_significance_v1/paired_query_deltas.csv
+
+evaluation/latency_v1/query_latency_measurements.csv
+
+evaluation/rerank_depth_tradeoff_v1/rerank_depth_latency_measurements.csv
+evaluation/rerank_depth_tradeoff_v1/rerank_depth_quality_per_query.csv
+evaluation/rerank_depth_tradeoff_v1/rerank_depth_top10_results.csv
+
+# ============================================================
+# Temporary / backup files
+# ============================================================
+
+*_backup.csv
+*.bak
+*.tmp
+*.temp
+
+repo_structure.txt
+current_readme.txt
+git_status_full.txt
+
+# ============================================================
+# Logs
+# ============================================================
+
+*.log
+logs/
+
+# ============================================================
+# Notebook checkpoints
+# ============================================================
+
+.ipynb_checkpoints/

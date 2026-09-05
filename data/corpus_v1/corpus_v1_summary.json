@@ -1,0 +1,14 @@
+{
+  "raw_comments": 148020,
+  "contributing_videos": 382,
+  "unique_comment_ids": 148020,
+  "retrieval_documents": 142963,
+  "within_video_duplicate_rows_collapsed": 5057,
+  "retrieval_reduction_percentage": 3.4164,
+  "repeated_text_groups": 2385,
+  "max_within_video_occurrence": 140,
+  "deduplication_scope": "within_video_only",
+  "global_text_deduplication": false,
+  "minimum_length_filter": null,
+  "language_filter": null
+}

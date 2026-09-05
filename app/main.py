@@ -1,229 +1,753 @@
-import streamlit as st
+from __future__ import annotations
+
 import pandas as pd
+import streamlit as st
+import torch
 
-from rag_pipeline import RAGPipeline, RetrievedComment
-from models import load_llm, generate_answer
+from models import (
+    generate_answer,
+    load_llm,
+)
 
-st.set_page_config(page_title="YouTube Comments RAG", layout="wide")
+from modern_retrieval import (
+    ModernRAGPipeline,
+)
+
+
+
+# ============================================================
+# Streamlit configuration
+# ============================================================
+
+st.set_page_config(
+    page_title="YouTube Comments RAG",
+    layout="wide",
+)
+
+
+# ============================================================
+# Device
+# ============================================================
+
+def get_device() -> str:
+
+    if torch.cuda.is_available():
+        return "cuda"
+
+    return "cpu"
+
+
+DEVICE = get_device()
+
+
+# ============================================================
+# Cached pipelines
+# ============================================================
+
+@st.cache_resource
+def get_modern_pipeline():
+
+    return ModernRAGPipeline(
+        device=DEVICE
+    )
 
 
 @st.cache_resource
-def get_pipeline() -> RAGPipeline:
-    # Load the pipeline once and reuse it (GPU model + FAISS index)
-    return RAGPipeline(device="cuda")
+def get_legacy_pipeline():
 
+    # Import lazily so FAISS is only required when
+    # the legacy MiniLM + FAISS backend is selected.
+    from rag_pipeline import (
+        RAGPipeline as LegacyRAGPipeline,
+    )
+
+    return LegacyRAGPipeline(
+        device=DEVICE
+    )
 
 @st.cache_resource
 def get_llm():
-    # Load tokenizer + model once, reused across requests
-    tokenizer, model = load_llm(device="cuda")
-    return tokenizer, model
 
+    return load_llm(
+        device=DEVICE
+    )
+
+
+# ============================================================
+# Prompt construction
+# ============================================================
 
 def build_rag_prompt(
     question: str,
-    comments: list[RetrievedComment],
+    comments,
     max_comments: int = 20,
 ) -> str:
-    """
-    Build a very simple, strict prompt for the LLM.
 
-    IMPORTANT:
-    - We end the prompt with '### ANSWER START'.
-    - After generation we show only what comes after that marker.
-    """
-    selected = comments[:max_comments]
+    selected = (
+        comments[
+            :max_comments
+        ]
+    )
 
     lines: list[str] = []
 
-    # Short & strict instructions – no templates, no placeholders
     lines.append(
         "You summarize YouTube comments for a user.\n"
         "You will be given a question and a list of numbered comments.\n"
         "Answer the question using ONLY information from those comments.\n"
         "Do NOT use outside knowledge or invent new facts.\n"
-        "If the comments do not contain information needed to answer part of the question,\n"
-        "write: 'The comments do not mention this.'\n"
+        "If the comments do not contain information needed to answer part "
+        "of the question, write: 'The comments do not mention this.'\n"
         "Write your answer in two parts:\n"
-        "1) One short paragraph (2–4 sentences) giving the overall opinion of commenters.\n"
-        "2) 3–5 bullet points with specific details from the comments.\n"
-        "Do not copy comments word-for-word; paraphrase them briefly.\n"
-        "Stay under 180 words in total.\n"
+        "1) One short paragraph of 2-4 sentences summarizing the main view.\n"
+        "2) 3-5 bullet points with specific supporting details.\n"
+        "Do not copy comments word-for-word; paraphrase briefly.\n"
+        "Stay under 180 words in total."
     )
 
-    # User question
-    lines.append("\nUser question:\n")
-    lines.append(question.strip())
+    lines.append(
+        "\nUser question:\n"
+    )
 
-    # Comments block
-    lines.append("\n\nComments:\n")
-    for i, rc in enumerate(selected, start=1):
-        text = rc.text.replace("\n", " ").strip()
-        if len(text) > 220:
-            text = text[:220] + "..."
-        title = rc.video_title.replace("\n", " ").strip()
-        lines.append(f"Comment {i} [Video: {title}]: {text}")
+    lines.append(
+        question.strip()
+    )
 
-    # Marker
+    lines.append(
+        "\n\nRetrieved comments:\n"
+    )
+
+    for i, comment in enumerate(
+        selected,
+        start=1,
+    ):
+
+        text = (
+            comment.text
+            .replace(
+                "\n",
+                " ",
+            )
+            .strip()
+        )
+
+        if len(text) > 300:
+
+            text = (
+                text[:300]
+                + "..."
+            )
+
+        title = (
+            comment.video_title
+            .replace(
+                "\n",
+                " ",
+            )
+            .strip()
+        )
+
+        lines.append(
+            f"Comment {i} "
+            f"[Video: {title}]: "
+            f"{text}"
+        )
+
     lines.append(
         "\n\nNow write the answer.\n"
-        "Start immediately with the paragraph (do not restate these instructions).\n"
+        "Start immediately with the answer.\n"
         "### ANSWER START\n"
     )
 
-    return "\n".join(lines)
+    return "\n".join(
+        lines
+    )
 
 
-# Initialise pipeline and LLM
-pipeline = get_pipeline()
-tokenizer, model = get_llm()
+# ============================================================
+# Header
+# ============================================================
 
-# -------------------------------------------------------------------------
-# Streamlit UI
-# -------------------------------------------------------------------------
-
-st.title("YouTube Comments RAG System")
+st.title(
+    "YouTube Comments RAG"
+)
 
 st.write(
-    "Type a question about video comments below. "
-    "The system retrieves similar comments and uses a local LLM to summarize what viewers say.\n\n"
-    "This version is STRICT: the answer must only use information actually present in comments."
+    "Retrieve evidence from YouTube comments and summarize it "
+    "with a locally served Llama 3 model."
+)
+
+st.caption(
+    f"Runtime device: {DEVICE}"
 )
 
 st.divider()
 
-# --- Scope selection: all videos vs single video ---
+
+# ============================================================
+# Retrieval backend
+# ============================================================
+
+st.sidebar.header(
+    "Retrieval configuration"
+)
+
+backend = st.sidebar.radio(
+    "Retrieval backend",
+    [
+        "Modern: Qwen3 + BGE",
+        "Legacy: MiniLM + FAISS",
+    ],
+    index=0,
+)
+
+use_modern = (
+    backend
+    == "Modern: Qwen3 + BGE"
+)
+
+
+# ============================================================
+# Load selected pipeline
+# ============================================================
+
+try:
+
+    if use_modern:
+
+        with st.spinner(
+            "Loading Qwen3 + BGE retrieval models..."
+        ):
+
+            pipeline = (
+                get_modern_pipeline()
+            )
+
+    else:
+
+        with st.spinner(
+            "Loading legacy MiniLM + FAISS pipeline..."
+        ):
+
+            pipeline = (
+                get_legacy_pipeline()
+            )
+
+except FileNotFoundError as exc:
+
+    st.error(
+        str(exc)
+    )
+
+    if use_modern:
+
+        st.info(
+            "Build the modern offline document embeddings first:\n\n"
+            "`python processing\\build_modern_index_v1.py`"
+        )
+
+    st.stop()
+
+
+# ============================================================
+# Modern retrieval profile
+# ============================================================
+
+candidate_depth = 25
+
+if use_modern:
+
+    retrieval_profile = (
+        st.sidebar.radio(
+            "Reranking profile",
+            [
+                "Quality-first (Top-25)",
+                "CPU-balanced (Top-15)",
+            ],
+            index=0,
+        )
+    )
+
+    if (
+        retrieval_profile
+        == "Quality-first (Top-25)"
+    ):
+
+        candidate_depth = 25
+
+        st.sidebar.caption(
+            "Reference benchmark configuration: "
+            "nDCG@10 = 0.7347."
+        )
+
+    else:
+
+        candidate_depth = 15
+
+        st.sidebar.caption(
+            "Lower CPU cost. Benchmark nDCG@10 = 0.7108 "
+            "(96.75% of Top-25 nDCG)."
+        )
+
+
+# ============================================================
+# Scope
+# ============================================================
 
 scope = st.radio(
     "Analysis scope",
-    ["All videos", "Single video"],
+    [
+        "Single video",
+        "All videos",
+    ],
     horizontal=True,
 )
 
-video_filter_value = None
+video_id_filter = None
+legacy_video_title_filter = None
+
+
+# ============================================================
+# Single-video selector
+# ============================================================
 
 if scope == "Single video":
-    # Build dropdown of unique video titles from the comments DataFrame
-    all_titles = (
-        pipeline.comments_df["video_title"]
-        .dropna()
-        .drop_duplicates()
-        .sort_values()
-        .tolist()
-    )
 
-    selected_title = st.selectbox(
-        "Choose a video to analyze",
-        all_titles,
-        index=0 if all_titles else None,
-    )
+    if use_modern:
 
-    if selected_title:
-        video_filter_value = selected_title
-        st.caption("Only comments from this video will be used for retrieval and LLM answering.")
-else:
-    st.caption("Comments from all videos are eligible for retrieval.")
-
-# --- Question + retrieval settings ---
-
-query = st.text_input(
-    "Enter your question (e.g. 'What do people like about this video?', "
-    "'What complaints do viewers have?', 'What do people say about the audio quality?')"
-)
-
-top_k = st.slider(
-    "Number of comments to retrieve for the LLM context",
-    min_value=10,
-    max_value=60,
-    value=30,
-    step=10,
-)
-
-run_button = st.button("Retrieve & Generate Answer")
-
-if run_button and query.strip():
-    # ---- RETRIEVAL ----
-    with st.spinner("Retrieving comments..."):
-        results = pipeline.retrieve(
-            query=query,
-            top_k=top_k,
-            video_title_filter=video_filter_value,
+        video_table = (
+            pipeline.comments_df[
+                [
+                    "video_id",
+                    "video_title",
+                ]
+            ]
+            .drop_duplicates(
+                subset=[
+                    "video_id"
+                ]
+            )
+            .sort_values(
+                [
+                    "video_title",
+                    "video_id",
+                ]
+            )
+            .reset_index(
+                drop=True
+            )
         )
 
-    st.write(f"Retrieved **{len(results)}** comments.")
+        video_options = []
+
+        video_lookup = {}
+
+        for row in video_table.itertuples(
+            index=False
+        ):
+
+            label = (
+                f"{row.video_title} "
+                f"[{row.video_id}]"
+            )
+
+            video_options.append(
+                label
+            )
+
+            video_lookup[
+                label
+            ] = str(
+                row.video_id
+            )
+
+        selected_video = (
+            st.selectbox(
+                "Choose a video to analyze",
+                video_options,
+                index=0
+                if video_options
+                else None,
+            )
+        )
+
+        if selected_video:
+
+            video_id_filter = (
+                video_lookup[
+                    selected_video
+                ]
+            )
+
+            st.caption(
+                "Retrieval is restricted to comments from "
+                "the selected video. This matches the scope "
+                "used by the 60-query retrieval benchmark."
+            )
+
+    else:
+
+        all_titles = (
+            pipeline.comments_df[
+                "video_title"
+            ]
+            .dropna()
+            .drop_duplicates()
+            .sort_values()
+            .tolist()
+        )
+
+        selected_title = (
+            st.selectbox(
+                "Choose a video to analyze",
+                all_titles,
+                index=0
+                if all_titles
+                else None,
+            )
+        )
+
+        if selected_title:
+
+            legacy_video_title_filter = (
+                selected_title
+            )
+
+            st.caption(
+                "Legacy retrieval is restricted to this "
+                "video title."
+            )
+
+else:
+
+    if use_modern:
+
+        st.warning(
+            "The modern pipeline supports global retrieval, "
+            "but the reported 60-query benchmark evaluated "
+            "single-video retrieval only. Global-search quality "
+            "is therefore not represented by the published "
+            "benchmark metrics."
+        )
+
+    else:
+
+        st.caption(
+            "Legacy FAISS search considers comments from "
+            "all videos."
+        )
+
+
+# ============================================================
+# Query
+# ============================================================
+
+query = st.text_input(
+    "Question",
+    placeholder=(
+        "Example: What laptops do viewers recommend "
+        "for programming?"
+    ),
+)
+
+
+# ============================================================
+# Final context size
+# ============================================================
+
+if use_modern:
+
+    top_k = st.slider(
+        "Number of reranked comments passed to the LLM",
+        min_value=5,
+        max_value=20,
+        value=10,
+        step=1,
+    )
+
+else:
+
+    top_k = st.slider(
+        "Number of comments passed to the LLM",
+        min_value=5,
+        max_value=20,
+        value=10,
+        step=1,
+    )
+
+
+# ============================================================
+# Run
+# ============================================================
+
+run_button = st.button(
+    "Retrieve & Generate Answer",
+    type="primary",
+)
+
+if (
+    run_button
+    and query.strip()
+):
+
+    # ========================================================
+    # Retrieval
+    # ========================================================
+
+    with st.spinner(
+        "Retrieving comments..."
+    ):
+
+        if use_modern:
+
+            results = (
+                pipeline.retrieve(
+                    query=query,
+                    top_k=top_k,
+                    video_id_filter=video_id_filter,
+                    candidate_depth=candidate_depth,
+                )
+            )
+
+        else:
+
+            results = (
+                pipeline.retrieve(
+                    query=query,
+                    top_k=top_k,
+                    video_title_filter=(
+                        legacy_video_title_filter
+                    ),
+                )
+            )
+
+    st.write(
+        f"Retrieved **{len(results)}** comments."
+    )
 
     if not results:
-        if scope == "Single video":
-            st.info(
-                "No comments found for this query in the selected video. "
-                "Try a different question or switch to 'All videos'."
-            )
-        else:
-            st.info("No comments found for this query. Try another phrase.")
-    else:
-        # ---- LLM ANSWER ----
-        st.subheader("LLM Answer (based on retrieved comments)")
 
-        with st.spinner("Generating summary with local LLM..."):
-            prompt = build_rag_prompt(question=query, comments=results)
-            raw_output = generate_answer(
+        st.info(
+            "No comments were retrieved. "
+            "Try another query or scope."
+        )
+
+        st.stop()
+
+    # ========================================================
+    # Generation
+    # ========================================================
+
+    st.subheader(
+        "Grounded answer"
+    )
+
+    with st.spinner(
+        "Generating answer with local Llama 3..."
+    ):
+
+        tokenizer, model = (
+            get_llm()
+        )
+
+        prompt = (
+            build_rag_prompt(
+                question=query,
+                comments=results,
+                max_comments=min(
+                    20,
+                    len(results),
+                ),
+            )
+        )
+
+        raw_output = (
+            generate_answer(
                 tokenizer,
                 model,
                 prompt,
-                max_new_tokens=160,   # short-ish answer
-                temperature=0.6,      # a bit more creative to escape copying
+                max_new_tokens=180,
+                temperature=0.4,
                 top_p=0.9,
                 do_sample=True,
             )
+        )
 
-        # Keep only the part after our marker
-        marker = "### ANSWER START"
-        if marker in raw_output:
-            answer_text = raw_output.split(marker, 1)[1].strip()
-        else:
-            answer_text = raw_output.strip()
+    marker = (
+        "### ANSWER START"
+    )
 
-        if not answer_text:
-            st.warning("LLM returned an empty answer for this prompt.")
-        else:
-            st.markdown(answer_text)
+    if marker in raw_output:
 
-        # ---- RAW COMMENTS LIST ----
-        st.divider()
-        st.subheader("Retrieved comments (context)")
+        answer_text = (
+            raw_output
+            .split(
+                marker,
+                1,
+            )[1]
+            .strip()
+        )
 
-        for i, rc in enumerate(results, start=1):
-            # Title
-            st.markdown(f"### {i}. {rc.video_title}")
+    else:
 
-            # Comment text
-            st.write(rc.text)
+        answer_text = (
+            raw_output.strip()
+        )
 
-            # Metadata
-            meta_parts: list[str] = []
-            if rc.extra is not None:
-                views = rc.extra.get("views")
-                uploaded = rc.extra.get("uploaded_date")
-                likes = rc.extra.get("likes_on_video")
-                dislikes = rc.extra.get("dislikes_on_video")
+    if answer_text:
 
-                # Treat as strings to avoid int() errors
-                if views is not None and not pd.isna(views) and str(views).strip():
-                    meta_parts.append(f"Views: {views}")
-                if uploaded:
-                    meta_parts.append(f"Uploaded: {uploaded}")
-                if likes is not None and not pd.isna(likes) and str(likes).strip():
-                    meta_parts.append(f"Likes on video: {likes}")
-                if dislikes is not None and not pd.isna(dislikes) and str(dislikes).strip():
-                    meta_parts.append(f"Dislikes on video: {dislikes}")
+        st.markdown(
+            answer_text
+        )
 
-            meta_text = " | ".join(meta_parts) if meta_parts else ""
+    else:
 
-            # Link + metadata caption
-            link = rc.video_link if rc.video_link else ""
-            if link:
-                st.caption(f"[Open video]({link})  {meta_text}")
+        st.warning(
+            "The local LLM returned an empty answer."
+        )
+
+    # ========================================================
+    # Retrieved evidence
+    # ========================================================
+
+    st.divider()
+
+    st.subheader(
+        "Retrieved evidence"
+    )
+
+    for i, result in enumerate(
+        results,
+        start=1,
+    ):
+
+        st.markdown(
+            f"### {i}. {result.video_title}"
+        )
+
+        st.write(
+            result.text
+        )
+
+        metadata = []
+
+        if result.extra:
+
+            if use_modern:
+
+                dense_score = (
+                    result.extra.get(
+                        "dense_score"
+                    )
+                )
+
+                reranker_score = (
+                    result.extra.get(
+                        "reranker_score"
+                    )
+                )
+
+                occurrence_count = (
+                    result.extra.get(
+                        "occurrence_count"
+                    )
+                )
+
+                if dense_score is not None:
+
+                    metadata.append(
+                        "Dense score: "
+                        f"{float(dense_score):.4f}"
+                    )
+
+                if reranker_score is not None:
+
+                    metadata.append(
+                        "Reranker score: "
+                        f"{float(reranker_score):.4f}"
+                    )
+
+                if (
+                    occurrence_count
+                    is not None
+                    and not pd.isna(
+                        occurrence_count
+                    )
+                ):
+
+                    metadata.append(
+                        "Occurrences in video: "
+                        f"{occurrence_count}"
+                    )
+
             else:
-                st.caption(meta_text)
 
-            st.markdown("---")
+                views = (
+                    result.extra.get(
+                        "views"
+                    )
+                )
+
+                uploaded = (
+                    result.extra.get(
+                        "uploaded_date"
+                    )
+                )
+
+                likes = (
+                    result.extra.get(
+                        "likes_on_video"
+                    )
+                )
+
+                if (
+                    views is not None
+                    and not pd.isna(
+                        views
+                    )
+                ):
+
+                    metadata.append(
+                        f"Views: {views}"
+                    )
+
+                if uploaded:
+
+                    metadata.append(
+                        f"Uploaded: {uploaded}"
+                    )
+
+                if (
+                    likes is not None
+                    and not pd.isna(
+                        likes
+                    )
+                ):
+
+                    metadata.append(
+                        f"Likes on video: {likes}"
+                    )
+
+        caption_parts = []
+
+        if result.video_link:
+
+            caption_parts.append(
+                f"[Open video]({result.video_link})"
+            )
+
+        caption_parts.extend(
+            metadata
+        )
+
+        if caption_parts:
+
+            st.caption(
+                " | ".join(
+                    caption_parts
+                )
+            )
+
+        st.markdown(
+            "---"
+        )

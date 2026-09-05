@@ -1,0 +1,54 @@
+{
+  "benchmark_queries": 60,
+  "benchmark_videos": 20,
+  "repeats": 3,
+  "online_measurements_per_system": 180,
+  "retrieval_scope": "single_video_benchmark",
+  "top_k_before_reranking": 25,
+  "model_loading_included": false,
+  "offline_document_encoding_included": false,
+  "latency_summary": [
+    {
+      "system": "minilm_dense",
+      "measurements": 180,
+      "mean_ms": 6.431910001103663,
+      "median_ms": 6.386149907484651,
+      "p95_ms": 7.440295082051307,
+      "p99_ms": 10.16214507864789,
+      "serial_qps": 155.47481227635464
+    },
+    {
+      "system": "qwen3_dense",
+      "measurements": 180,
+      "mean_ms": 74.27210167645373,
+      "median_ms": 73.47920001484454,
+      "p95_ms": 84.72344995243472,
+      "p99_ms": 90.66737310728058,
+      "serial_qps": 13.464005695654457
+    },
+    {
+      "system": "qwen3_bge_reranker",
+      "measurements": 180,
+      "mean_ms": 3156.6494144357016,
+      "median_ms": 2665.4927999479696,
+      "p95_ms": 7878.00635001622,
+      "p99_ms": 9417.249258940576,
+      "serial_qps": 0.31679159409559104
+    }
+  ],
+  "offline_document_encoding": [
+    {
+      "model": "minilm_dense",
+      "documents": 6841,
+      "seconds": 14.373577699996531,
+      "docs_per_second": 475.94274319062896
+    },
+    {
+      "model": "qwen3_embedding_0.6b",
+      "documents": 6841,
+      "seconds": 275.8365761998575,
+      "docs_per_second": 24.800916884363264
+    }
+  ],
+  "estimated_reranker_increment_mean_ms": 3082.377312759248
+}

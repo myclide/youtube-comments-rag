@@ -1,0 +1,28 @@
+{
+  "base_judgments": 3339,
+  "qwen3_novel_judgments": 419,
+  "expanded_judgments": 3758,
+  "queries": 60,
+  "novel_relevance_distribution": {
+    "0": 215,
+    "1": 54,
+    "2": 150
+  },
+  "expanded_relevance_distribution": {
+    "0": 2339,
+    "1": 435,
+    "2": 984
+  },
+  "changed_work_fields": {
+    "query_id": 0,
+    "video_id": 0,
+    "video_title": 0,
+    "query_type": 0,
+    "query": 0,
+    "document_id": 0,
+    "representative_comment_id": 0,
+    "comment_text": 0
+  },
+  "unresolved": 0,
+  "integrity": "PASS"
+}
